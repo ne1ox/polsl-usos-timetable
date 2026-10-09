@@ -30,10 +30,10 @@ type GroupDetailsDTO = {
 };
 
 // Currently unused, however greatly valuable for enriched frontend experience
-export async function getGroupDetails(unitId: number, groupNumber: number) {
-  const data = await usosFetch<GroupDetailsDTO>(
-      "groups/group", 
-      {
+export const getGroupDetails = async (unitId: number, groupNumber: number) =>
+  await usosFetch<GroupDetailsDTO>(
+    "groups/group", 
+    {
         course_unit_id: unitId.toString(),
         group_number: groupNumber.toString(),
         fields: [
@@ -59,8 +59,5 @@ export async function getGroupDetails(unitId: number, groupNumber: number) {
             // "course_assessment_criteria",
             // "course_practical_placement"
         ].join("|"),
-      }
-  );
-
-  return data;
-}
+    }
+);

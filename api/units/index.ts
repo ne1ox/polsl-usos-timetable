@@ -1,9 +1,9 @@
-import type { CourseActivityDTO, DateTimeString, UnitsDateDTO } from "../types";
+import type { CourseActivityDTO, UnitsDateDTO } from "../types";
 import usosFetch from "../usosFetch";
 
 // Returns everything essential for displaying a course activity
 export const getCourseActivityDetails = async(unitId: number, groupNumber: number) => {
-  return await usosFetch<CourseActivityDTO>(
+  return await usosFetch<CourseActivityDTO[]>(
       "tt/classgroup", 
       {
         unit_id: unitId.toString(),

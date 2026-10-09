@@ -66,10 +66,26 @@ export type AcademicYear = `${number}/${number}`;
 export type Semester = "Z" | "L";
 export type AcademicTerm = `${AcademicYear}-${Semester}`;
 
+
+// *********
+// BUILDERS.TS
+// ********
+
 export type CourseGroup = {
   courseId: string;
   name: string;
   unitId: number;
   groupNumbers: number[];
-  typeName: string;
+  classTypeName: string;
+}
+
+export type CourseActivity = {
+    courseId: string;
+    name: string;
+    classTypeName: string;
+    buildingName: string;
+    roomNumber: string;
+    frequency: CourseActivityFrequency;
+    url: string | null;
+    dates: { startTime: DateTimeString, endTime: DateTimeString }[];
 }

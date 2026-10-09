@@ -1,6 +1,5 @@
 import type { AcademicTerm, CoursesSearchDTO, CourseEditionDTO, DateString } from "../types";
 import usosFetch from "../usosFetch";
-import { getFirstTwoMondays, toCourseGroups } from "../utils";
 
 // Search for coursesIds [przedmioty] by coursePrefixId [przedrostek kursu ~ kod kierunku]
 // e.g "SIAu>SI1" matches courses like "SIAu>SI1-Mat-26"
