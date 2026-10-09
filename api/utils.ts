@@ -1,8 +1,10 @@
-import type { AcademicTerm, AcademicYear, CourseGroup, ScheduleEntry, Semester } from "./types";
+import { getCoursesDetails } from "./courses";
+import type { AcademicTerm, AcademicYear, CourseGroup, CourseEditionDTO, Semester, DateString } from "./types";
 
 // Funkcja zwracjąca rok akademicki z oznaczeniem semestru
 // np. 2026/2027-Z
-export function getAcademicTerm(date: Date = new Date()): AcademicTerm | null {
+export function getCurrentAcademicTerm(): AcademicTerm | null {
+  const date = new Date();
   const academicYear = getAcademicYear(date);
   const semester = getSemester(date);
 
@@ -43,32 +45,29 @@ function getSemester(date: Date): Semester | null {
 }
 
 // Funkcja, która zwraca dwa pierwsze poniedziałki semestru
-export function getFirstTwoMondays(semester: AcademicTerm): [string, string] | null {
+export function getFirstTwoMondays(semester: AcademicTerm): [DateString, DateString] {
   const [years, type] = semester.split("-");
-  if (!years || !type) return null;
 
-  const [startYear, endYear] = years.split("/").map(Number);
-  if (!startYear || !endYear) return null;
+  const [startYear, endYear] = years!.split("/").map(Number);
 
   const year = type === "Z" ? startYear : endYear;
   const month = type === "Z" ? 9 : 2; // 0-indexed: 9 = October, 2 = March
 
-  const date = new Date(Date.UTC(year, month, 1));
+  const date = new Date(Date.UTC(year!, month, 1));
 
   // Przesunięcie do pierwszego poniedziałku
   const offset = (8 - date.getUTCDay()) % 7;
   date.setUTCDate(1 + offset);
 
-  const first = date.toISOString().slice(0, 10);
+  const first = date.toISOString().slice(0, 10) as DateString;
 
   date.setUTCDate(date.getUTCDate() + 7);
-  const second = date.toISOString().slice(0, 10);
+  const second = date.toISOString().slice(0, 10) as DateString;
 
   return [first, second];
 }
 
-// Funkcja grupująca kursy ze względu na numery grup
-export function groupCourses(entries: ScheduleEntry[]): CourseGroup[] {
+export function toCourseGroups(entries: CourseEditionDTO[]): CourseGroup[] {
   const groups = new Map<string, CourseGroup>();
 
   for (const entry of entries) {
@@ -95,4 +94,15 @@ export function groupCourses(entries: ScheduleEntry[]): CourseGroup[] {
     ...group,
     groupNumbers: group.groupNumbers.sort((a, b) => a - b),
   }));
+}
+
+export async function getAllCourses(courseIds: string[], term: AcademicTerm) {
+  const mondays = getFirstTwoMondays(term);
+
+  const [evenWeekStartDate, unevenWeekStartDate] = mondays;
+
+  const evenWeekData = await getCoursesDetails(courseIds, term, evenWeekStartDate);
+  const unevenWeekData = await getCoursesDetails(courseIds, term, unevenWeekStartDate);
+
+  return toCourseGroups([...evenWeekData, ...unevenWeekData]);
 }

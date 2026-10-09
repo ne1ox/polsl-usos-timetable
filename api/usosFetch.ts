@@ -1,3 +1,5 @@
+// TODO: settable in .env
+// Currently hardcoded for MVP
 const BASE = "https://usosapi.polsl.pl/services";
 
 export default async function usosFetch<T>(

@@ -1,28 +1,27 @@
-import { getCoursesIds, getAllCourses } from "./api/courses";
-import { getUnitsDates, getUnitsDetails, getUnitsGroupDetails } from "./api/units";
-import { getAcademicTerm } from "./api/utils";
+import { searchCoursesIds,  } from "./api/courses";
+import { getGroupDetails } from "./api/groups";
+import { getCourseActivityDates, getCourseActivityDetails } from "./api/units";
+import { getCurrentAcademicTerm, getAllCourses } from "./api/utils";
 
-const courseGroupId = "SIAu>SI1";
-const term = getAcademicTerm();
+const coursePrefixId = "SIAu>SI1";
+const coursesIds = await searchCoursesIds(coursePrefixId);
+console.log(coursesIds);
 
+const term = getCurrentAcademicTerm();
 if (!term) {
     process.exit();
 }
 
-const coursesIds = await getCoursesIds(courseGroupId);
-
 const courses = await getAllCourses(coursesIds, term);
+console.log(courses);
 
 if (courses && courses[1]) {
     const {unitId, groupNumbers} = courses[1];
     const groupNumber = groupNumbers[1]!;
 
-    const groupData = await getUnitsGroupDetails(unitId, groupNumber);
-    console.log(groupData);
-
-    const unitDetails = await getUnitsDetails(unitId, groupNumber);
+    const unitDetails = await getCourseActivityDetails(unitId, groupNumber);
     console.log(unitDetails);
 
-    const unitDates = await getUnitsDates(unitId, groupNumber);
+    const unitDates = await getCourseActivityDates(unitId, groupNumber);
     console.log(unitDates);
 }
