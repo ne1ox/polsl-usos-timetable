@@ -1,5 +1,4 @@
-import { getCoursesDetails } from "./courses";
-import type { AcademicTerm, AcademicYear, CourseGroup, CourseEditionDTO, Semester, DateString } from "./types";
+import type { AcademicTerm, AcademicYear, Semester, DateString } from "./types";
 
 // Funkcja zwracjąca rok akademicki z oznaczeniem semestru
 // np. 2026/2027-Z

@@ -1,6 +1,5 @@
 import { buildAllCourses, buildCourseActivity } from "./api/builders";
 import { searchCoursesIds,  } from "./api/courses";
-import { getCourseActivityDates, getCourseActivityDetails } from "./api/units";
 import { getCurrentAcademicTerm } from "./api/utils";
 
 const coursePrefixId = "SIAu>SI1";
