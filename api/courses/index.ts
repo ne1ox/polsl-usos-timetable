@@ -3,16 +3,24 @@ import usosFetch from "../usosFetch";
 import { getFirstTwoMondays, groupCourses } from "../utils";
 
 export async function getCoursesIds(courseGroupId: string) {
-  const data = await usosFetch<CoursesSearch>(
-      "courses/search", 
-      {
-        lang: "pl",
-        name: courseGroupId,
-        num: "20",
-      }
-  );
+  const courseIds: string[] = [];
+  let start = 0;
+  let nextPage: boolean;
 
-  return data.items.map(item => item.course_id);
+  do {
+    const data = await usosFetch<CoursesSearch>("courses/search", {
+      lang: "pl",
+      name: courseGroupId,
+      num: "20",
+      start: String(start),
+    });
+
+    courseIds.push(...data.items.map(item => item.course_id));
+    start += data.items.length;
+    nextPage = data.next_page;
+  } while (nextPage);
+
+  return courseIds;
 }
 
 async function getCourses(courseIds: string[], term: string, start: string) {
