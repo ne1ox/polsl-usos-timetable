@@ -44,7 +44,6 @@ function toCourseGroups(entries: CourseEditionDTO[]): CourseGroup[] {
   }));
 }
 
-
 // Usable for frontend
 export async function buildCourseActivity(
   unitId: number, 
@@ -55,8 +54,10 @@ export async function buildCourseActivity(
 
   return {
     courseId: unitData.course_id,
+    unitId: unitId,
     name: unitData.course_name.pl,
     classTypeName: unitData.classtype_name.pl,
+    groupNumber: groupNumber,
     buildingName: unitData.building_name.pl,
     roomNumber: unitData.room_number,
     frequency: unitData.frequency,

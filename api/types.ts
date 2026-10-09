@@ -81,8 +81,10 @@ export type CourseGroup = {
 
 export type CourseActivity = {
     courseId: string;
+    unitId: number;
     name: string;
     classTypeName: string;
+    groupNumber: number;
     buildingName: string;
     roomNumber: string;
     frequency: CourseActivityFrequency;

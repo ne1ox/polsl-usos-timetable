@@ -4,7 +4,8 @@ import { getCurrentAcademicTerm } from "./api/utils";
 
 const coursePrefixId = "SIAu>SI1";
 const coursesIds = await searchCoursesIds(coursePrefixId);
-console.log("Searched by API function:\n", coursesIds);
+console.log(`Query: "${coursePrefixId}"`);
+console.log("Found by API search function:\n", coursesIds);
 
 const term = getCurrentAcademicTerm();
 if (!term) {
