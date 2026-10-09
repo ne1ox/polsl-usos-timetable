@@ -1,5 +1,7 @@
 {
   "name": "polsl-usos-timetable",
+  "version": "0.0.1",
+  "author": "ne1ox",
   "module": "index.ts",
   "type": "module",
   "private": true,
