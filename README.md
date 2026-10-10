@@ -1,20 +1,64 @@
-# POLSL USOS Timetable
+# Kampus — POLSL USOS Timetable
 
-Moduł TypeScript dla przyszłego React PWA: wyszukiwanie przedmiotów po prefiksie,
-wybór istniejących grup i pełny plan wybranych grup. Działa bez backendu, klucza API
-i logowania. Katalog oraz spotkania są pobierane osobno. Repozytorium zawiera moduł
-danych i demonstrację CLI; nie zawiera jeszcze interfejsu React ani service workera.
+Mobilna aplikacja React + TypeScript + Vite do planu zajęć Politechniki Śląskiej.
+Działa bez backendu, klucza API i logowania. Można ją zainstalować jako PWA na
+Androidzie i iPhonie. Interfejs oraz wcześniej pobrany plan działają offline.
+
+- Wyszukiwarka kierunków USOS; domyślnie Sztuczna inteligencja, 1. semestr, `2026/2027-Z`.
+- Nazwy przedmiotów i rzeczywiste grupy wykładów, ćwiczeń i laboratoriów. Przy licznych
+  grupach także wpisywanie numeru; opcja „Nie uczęszczam” pomija zajęcia.
+- Pionowy plan 08:00–20:00, rozszerzany do godzin zajęć; nakładające się spotkania
+  obok siebie, zajęcia przez północ widoczne w obu dniach.
+- Swipe między dniami, nawigacja tygodniowa, kalendarz miesięczny, dowolna data,
+  szczegóły sal oraz linki do USOS.
+- Zapis wyborów, edycja grup i kierunku, odświeżanie planu i katalogu, informacje
+  o niepełnych lub nieaktualnych danych. Układ na telefon, tablet i komputer.
+
+**[Jak otworzyć i zainstalować na telefonie →](docs/TELEFON.md)**
 
 ## Uruchomienie
 
 ```sh
 bun install
+bun run dev
+# http://localhost:5173; adres Network z terminala można otworzyć w tym samym Wi-Fi.
+
+bun run build
+bun run preview
+# http://localhost:4173 — build produkcyjny z service workerem.
+
+bun test
+bun run typecheck
+```
+
+Wymagany jest Bun; Vite wymaga Node.js 20.19+ lub 22.12+.
+Instalacja PWA i offline na telefonie wymagają hostingu HTTPS. W repozytorium
+jest ręcznie uruchamiany workflow GitHub Pages (`.github/workflows/pages.yml`).
+
+## Kierunki i grupy
+
+Wyszukiwanie korzysta z `progs/search` (do 20 wyników — zawęź nazwę, jeśli brakuje
+kierunku). Domyślny cykl jest jawnie ustawiony na `2026/2027-Z`; zmień go w formularzu,
+gdy potrzebujesz innego. `Z` oznacza zimowy, `L` letni.
+
+POLSL często używa schematu `SIAu-SI7` → `SIAu>SI1` dla 1. semestru, ale kod
+programu **nie gwarantuje** takiego prefiksu przedmiotów. Możesz go poprawić w
+„Kod przedmiotów i opcje zaawansowane”. Jeśli brakuje grup, sprawdź cykl,
+semestr i początek kodu przedmiotu w USOS; specjalności i nabory mogą mieć inne kody.
+
+W „Moje grupy” przycisk **Odśwież dostępne grupy** omija cache katalogu.
+W „Ustawienia” przycisk **Odśwież plan teraz** pobiera ponownie spotkania wybranych grup,
+pozostawiając katalog i wybory. Błędy i limity USOS nadal mają cooldown.
+
+## CLI
+
+```sh
 
 # Tylko katalog grup — bez pobierania spotkań.
-bun run start "SIAu>SI1" "2026/2027-Z"
+bun run cli "SIAu>SI1" "2026/2027-Z"
 
 # Katalog, następnie pełny plan wskazanych grup.
-bun run start "SIAu>SI1" "2026/2027-Z" 152006:1 152005:1
+bun run cli "SIAu>SI1" "2026/2027-Z" 152006:1 152005:1
 
 bun test
 bun run typecheck
@@ -104,7 +148,7 @@ useEffect(() => {
 
 Współdzielenie trwających zapytań chroni m.in. przed podwójnymi wywołaniami efektów
 w React StrictMode. Odmontowanie komponentu nie przerywa żądania potrzebnego innym
-komponentom. Wybór użytkownika powinien być zapisany przez przyszły interfejs wraz z semestrem.
+komponentom. Interfejs zapisuje wybrane i pominięte grupy wraz z cyklem w localStorage.
 
 ## Model spotkania
 
@@ -156,8 +200,8 @@ const client = createTimetableClient({
   Pomyślnie pobrane odpowiedzi zostają w cache'u na kolejną próbę.
 - `courses/search` udostępnia najwyżej 100 wyników. Po osiągnięciu tego progu
   `searchMayBeTruncated` jest `true`; interfejs powinien poprosić o węższy prefiks.
-- Dane offline wymagają wcześniejszego pobrania. Dostarczenie samego interfejsu offline
-  wymaga service workera w przyszłym projekcie PWA.
+- Dane offline wymagają wcześniejszego pobrania. Service worker zapisuje produkcyjny
+  interfejs i lokalne fonty; klient IndexedDB zarządza odpowiedziami USOS.
 
 ## Dokumentacja USOS
 
