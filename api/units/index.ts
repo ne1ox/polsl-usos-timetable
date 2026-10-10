@@ -1,39 +1,11 @@
-import type { CourseActivityDTO, UnitsDateDTO } from "../types";
-import usosFetch from "../usosFetch";
+import type { ActivityDTO, GroupSelection, LoadOptions } from "../types";
+import type { Transport } from "../usosFetch";
 
-// Returns everything essential for displaying a course activity
-export const getCourseActivityDetails = async(unitId: number, groupNumber: number) => {
-  return await usosFetch<CourseActivityDTO[]>(
-      "tt/classgroup", 
-      {
-        unit_id: unitId.toString(),
-        group_number: groupNumber.toString(),
-        fields: [
-            "course_id",
-            "type",
-            "course_name",
-            "classtype_name",
-            "building_name",
-            "room_number",
-            "lecturer_ids",
-            "frequency",
-            "url"
-        ].join("|"),
-      }
-  );
+export function getGroupMeetings(transport: Transport, group: GroupSelection, ttlMs: number, options: LoadOptions) {
+  return transport.get<ActivityDTO[]>("tt/classgroup_dates2", {
+    unit_id: group.unitId,
+    group_number: String(group.groupNumber),
+    // name is included because the deployed USOS may require it even with explicit fields.
+    fields: "name|type|start_time|end_time|course_id|course_name|unit_id|group_number|classtype_name|building_name|building_id|room_number|room_id|lecturer_ids|frequency|url|sm_id|cgwm_id",
+  }, ttlMs, options);
 }
-
-// Returns an array of start and end DateTimeString 
-// for specific CourseActivity throughout the whole term
-export const getCourseActivityDates = async (unitId: number, groupNumber: number) =>
-  await usosFetch<UnitsDateDTO[]>(
-    "tt/classgroup_dates2", 
-    {
-      unit_id: unitId.toString(),
-      group_number: groupNumber.toString(),
-      fields: [
-          "start_time",
-          "end_time",
-      ].join("|"),
-    }
-);

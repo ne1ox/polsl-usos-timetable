@@ -5,8 +5,15 @@
   "module": "index.ts",
   "type": "module",
   "private": true,
+  "scripts": {
+    "start": "bun run index.ts",
+    "test": "bun test",
+    "smoke": "bun run scripts/smoke.ts",
+    "typecheck": "tsc --noEmit"
+  },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "fake-indexeddb": "^6.2.5"
   },
   "peerDependencies": {
     "typescript": "^7"
