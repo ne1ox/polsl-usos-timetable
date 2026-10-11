@@ -1,18 +1,23 @@
 # Kampus — POLSL USOS Timetable
 
-Mobilna aplikacja React + TypeScript + Vite do planu zajęć Politechniki Śląskiej.
+Mobilna aplikacja React + TypeScript + Vite + Tailwind CSS do planu zajęć Politechniki Śląskiej.
 Działa bez backendu, klucza API i logowania. Można ją zainstalować jako PWA na
 Androidzie i iPhonie. Interfejs oraz wcześniej pobrany plan działają offline.
 
 - Wyszukiwarka kierunków USOS; domyślnie Sztuczna inteligencja, 1. semestr, `2026/2027-Z`.
-- Nazwy przedmiotów i rzeczywiste grupy wykładów, ćwiczeń i laboratoriów. Przy licznych
-  grupach także wpisywanie numeru; opcja „Nie uczęszczam” pomija zajęcia.
-- Pionowy plan 08:00–20:00, rozszerzany do godzin zajęć; nakładające się spotkania
+- Nazwy przedmiotów i rzeczywiste grupy wykładów, ćwiczeń i laboratoriów.
+  Opcja „Nie uczęszczam” pomija zajęcia.
+- Pionowy plan 07:00–21:00, rozszerzany do godzin zajęć; nakładające się spotkania
   obok siebie, zajęcia przez północ widoczne w obu dniach.
 - Swipe między dniami, nawigacja tygodniowa, kalendarz miesięczny, dowolna data,
   szczegóły sal oraz linki do USOS.
 - Zapis wyborów, edycja grup i kierunku, odświeżanie planu i katalogu, informacje
   o niepełnych lub nieaktualnych danych. Układ na telefon, tablet i komputer.
+- Roboto, motyw jasny, ciemny i systemowy; większy tekst oraz kolory zajęć zgodne z USOS.
+- Linia bieżącej godziny w dzisiejszym planie, aktualizowana co 15 sekund. Przy przewijaniu
+  znacznik pozostaje przy krawędzi widocznego planu i wskazuje kierunek do aktualnej godziny.
+- Konfiguracja w „Moich grupach”. „Mój plan” zawsze pokazuje kalendarz, także przed konfiguracją.
+- Dodawanie języka, WF-u i innych przedmiotów spoza kierunku przez wyszukiwarkę USOS.
 
 **[Jak otworzyć i zainstalować na telefonie →](docs/TELEFON.md)**
 
@@ -29,11 +34,29 @@ bun run preview
 
 bun test
 bun run typecheck
+bun run check
+# ESLint, Prettier, testy i build produkcyjny.
 ```
 
 Wymagany jest Bun; Vite wymaga Node.js 20.19+ lub 22.12+.
 Instalacja PWA i offline na telefonie wymagają hostingu HTTPS. W repozytorium
 jest ręcznie uruchamiany workflow GitHub Pages (`.github/workflows/pages.yml`).
+
+## Organizacja kodu
+
+- `src/App.tsx`: trasy React Router (`#/plan`, `#/groups`, `#/settings`). Hash routing
+  działa na hostingu statycznym i GitHub Pages bez reguł przekierowań.
+- `src/pages/`: strony planu, grup i ustawień.
+- `src/components/groups/`, `src/components/schedule/`: komponenty poszczególnych funkcji.
+- `src/state/TimetableProvider.tsx`: odtwarzanie, zapisywanie i odświeżanie planu.
+- `src/hooks/`: edycja grup, motyw i zegar; `src/lib/`: operacje na datach, profilu i katalogach.
+- `src/styles.css`: tokeny jasnego i ciemnego motywu oraz wspólne elementy Tailwinda.
+- `api/`: niezależny od Reacta klient USOS, cache i normalizacja odpowiedzi.
+
+`bun run lint` wymusza m.in. klamry, brak zagnieżdżonych operatorów warunkowych,
+jedną instrukcję na linię, limity wielkości funkcji i plików oraz reguły hooków i dostępności.
+`bun run format` formatuje kod i porządkuje klasy Tailwinda. CI sprawdza oba narzędzia.
+Build PWA używa wariantu WASM Rollupa, aby nie zależeć od natywnego dodatku systemowego.
 
 ## Kierunki i grupy
 
@@ -46,9 +69,15 @@ programu **nie gwarantuje** takiego prefiksu przedmiotów. Możesz go poprawić 
 „Kod przedmiotów i opcje zaawansowane”. Jeśli brakuje grup, sprawdź cykl,
 semestr i początek kodu przedmiotu w USOS; specjalności i nabory mogą mieć inne kody.
 
-W „Moje grupy” przycisk **Odśwież dostępne grupy** omija cache katalogu.
+W „Moje grupy” przycisk **Odśwież listę** omija cache katalogu.
 W „Ustawienia” przycisk **Odśwież plan teraz** pobiera ponownie spotkania wybranych grup,
 pozostawiając katalog i wybory. Błędy i limity USOS nadal mają cooldown.
+
+Przycisk **Dodaj język, WF lub inny przedmiot** wyszukuje po nazwie lub kodzie.
+USOS ogranicza wyszukiwanie do 100 wyników; aplikacja sprawdza dostępne strony i filtruje
+je według cyklu. Jeśli brakuje przedmiotu, wpisz dokładniejszą nazwę lub jego kod.
+Dodatkowe przedmioty mają własne grupy i są zapisywane w profilu wraz z pozostałymi wyborami.
+Starsze profile bez dodatkowych przedmiotów pozostają obsługiwane.
 
 ## CLI
 
@@ -110,16 +139,16 @@ Importuj `api/index.ts`, nie główny `index.ts` zawierający demonstrację Bun.
 Używaj jednej instancji klienta na aplikację — domyślny `timetableClient` jest współdzielony.
 
 ```ts
-import { timetableClient, type GroupSelection } from "./api";
+import { timetableClient, type GroupSelection } from './api';
 
-const catalog = await timetableClient.getCatalog("SIAu>SI1", "2026/2027-Z");
+const catalog = await timetableClient.getCatalog('SIAu>SI1', '2026/2027-Z');
 
 // catalog.courses: przedmiot + jednostka (np. wykład lub ćwiczenia).
 // Pola selektora: name, classTypeName, unitId, groupNumbers, groupCount.
 // Wybrane wartości pochodzą z kontrolek użytkownika, nie z indeksów tablicy.
 const selected: GroupSelection[] = [
-  { unitId: "152006", groupNumber: 1 },
-  { unitId: "152005", groupNumber: 1 },
+  { unitId: '152006', groupNumber: 1 },
+  { unitId: '152005', groupNumber: 1 },
 ];
 
 const timetable = await timetableClient.getTimetable(catalog, selected);
@@ -139,10 +168,16 @@ useEffect(() => {
   let active = true;
   setError(null);
   timetableClient.getTimetable(catalog, selected).then(
-    result => { if (active) setTimetable(result); },
-    error => { if (active) setError(String(error)); },
+    (result) => {
+      if (active) setTimetable(result);
+    },
+    (error) => {
+      if (active) setError(String(error));
+    },
   );
-  return () => { active = false; };
+  return () => {
+    active = false;
+  };
 }, [catalog, selected]);
 ```
 
@@ -173,7 +208,7 @@ zmiana planu może pozostać niewidoczna do wygaśnięcia cache'u albo ręcznego
 Nie ma odpytywania w tle ani automatycznej pętli ponowień.
 
 ```ts
-import { createTimetableClient } from "./api";
+import { createTimetableClient } from './api';
 
 const client = createTimetableClient({
   catalogTtlMs: 24 * 60 * 60 * 1000,

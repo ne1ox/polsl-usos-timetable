@@ -78,7 +78,7 @@ export interface TimetableEvent extends GroupSelection {
   startTime: string;
   endTime: string;
   date: DateString;
-  timeZone: "Europe/Warsaw";
+  timeZone: 'Europe/Warsaw';
   buildingName: string | null;
   buildingId: string | null;
   roomNumber: string | null;
@@ -86,7 +86,7 @@ export interface TimetableEvent extends GroupSelection {
   lecturerIds: string[];
   frequency: string | null;
   /** Legacy 'once'/'other' entries may be candidates, not confirmed dates. */
-  dateStatus: "confirmed" | "calculated" | "uncertain";
+  dateStatus: 'confirmed' | 'calculated' | 'uncertain';
   url: string | null;
 }
 

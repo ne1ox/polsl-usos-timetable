@@ -1,4 +1,4 @@
-import type { LocalizedString } from "./types";
+import type { LocalizedString } from './types';
 
 export function localized(value: LocalizedString | undefined): string | null {
   return value?.pl || value?.en || null;
