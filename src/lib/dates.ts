@@ -42,7 +42,10 @@ export function hourLabel(value: number) {
   return `${String(Math.floor(value / 60)).padStart(2, '0')}:${String(value % 60).padStart(2, '0')}`;
 }
 export function roomNumberLabel(value: string) {
-  return value.split(' ').map(x => x.at(0)?.toUpperCase() + x.slice(1)).join(' ');
+  return value
+    .split(' ')
+    .map((x) => x.at(0)?.toUpperCase() + x.slice(1))
+    .join(' ');
 }
 export interface DayEvent {
   event: TimetableEvent;
